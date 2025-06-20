@@ -20,3 +20,15 @@ export async function addHabit(habit: {
     console.error('Error adding habit:', error);
   }
 }
+
+export async function testSimpleWrite() {
+  try {
+    const ref = collection(db, 'testCollection');
+    const doc = await addDoc(ref, {
+      test: 'hello world',
+    });
+    console.log('Simple write succeeded with ID:', doc.id);
+  } catch (error) {
+    console.error('Simple write error:', error);
+  }
+}
