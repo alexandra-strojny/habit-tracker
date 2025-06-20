@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { addHabit, testSimpleWrite } from "../dao/addHabit";
+import { testSimpleWrite } from "../dao/addHabit";
 
 export const AddHabitCard = () => {
   const [habitName, setHabitName] = useState('');

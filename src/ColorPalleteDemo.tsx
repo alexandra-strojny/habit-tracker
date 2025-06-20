@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function ColorPaletteDemo() {
   return (
     <div className="min-h-screen bg-background-light text-primary flex flex-col items-center justify-center p-6 space-y-6">

@@ -1,6 +1,6 @@
 // src/firebase.ts
 import { initializeApp } from 'firebase/app';
-import { getFirestore, initializeFirestore, persistentLocalCache } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache } from 'firebase/firestore';
 // Import the functions you need from the SDKs you need
 
 // Your web app's Firebase configuration
