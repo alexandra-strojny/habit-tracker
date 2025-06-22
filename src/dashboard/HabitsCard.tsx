@@ -7,13 +7,15 @@ import { EmptyCircularButton } from "../components/EmptyCircularButton";
 import { useAddOccurrence } from "../dao/useAddOccurrence";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../dao/useAuthUser";
+import { useDeleteOccurrence } from "../dao/useDeleteOccurrence";
 
 export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   const queryClient = useQueryClient();
   const isDaily = frequency === 'daily';
   const { user } = useAuthUser();
   const userId = user?.uid;
-  const addOccurrenceMutation = useAddOccurrence(user?.uid);
+  const addOccurrenceMutation = useAddOccurrence(userId);
+  const deleteOccurrenceMutation = useDeleteOccurrence(userId);
 
   const dates = isDaily ? getCurrentWeekDates() : getCurrentBiMonthlyDates();
 
@@ -29,6 +31,11 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   const logOccurrence = async (habitId: string, date: Date) => {
     const occurrenceTimestamp = date.getTime();
     addOccurrenceMutation.mutate({ habitId, occurrenceTimestamp });
+    queryClient.invalidateQueries({queryKey:[userId, "occurrences", startTime, endTime]});
+  }
+
+  const deleteOccurrence = async (occurrenceId: string) => {
+    deleteOccurrenceMutation.mutate({ occurrenceId });
     queryClient.invalidateQueries({queryKey:[userId, "occurrences", startTime, endTime]});
   }
 
@@ -62,7 +69,7 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
               className="col-span-1 flex justify-center"
             >
               {occurrence ? (
-                <CircularButton onClick={() => console.log("here")} />
+                <CircularButton onClick={() => deleteOccurrence(occurrence.id)} />
               ) : (
                 <EmptyCircularButton onClick={() => logOccurrence(habit.id, date)} />
               )}
