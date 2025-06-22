@@ -3,11 +3,10 @@ import { db } from "../firebase";
 import type { Frequency, Habit } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
 
-export const queryHabits = async ({userId, frequency}: {userId:string, frequency:Frequency}) => {
+const queryHabits = async ({userId, frequency}: {userId:string | undefined, frequency:Frequency}) => {
   try {
-    const habitRef = collection(db, `users/${userId}/habits`);
     const querySnapshot = await getDocs(
-      query(habitRef, where("frequency", "==", frequency))
+      query(collection(db, `users/${userId}/habits`), where("frequency", "==", frequency))
     );
 
     const habits: Habit[] = [];
@@ -21,9 +20,10 @@ export const queryHabits = async ({userId, frequency}: {userId:string, frequency
   }
 }
 
-export const useQueryHabits = (userId: string, frequency: Frequency) => {
+export const useQueryHabits = (userId: string | undefined, frequency: Frequency) => {
   return useQuery({
-    queryKey: ['habits', frequency],
+    queryKey: [userId, 'habits', frequency],
     queryFn: () => queryHabits({ userId, frequency }),
+    enabled: userId !== undefined && frequency !== undefined,
   });
 };

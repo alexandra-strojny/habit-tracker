@@ -3,7 +3,7 @@ import { db } from "../firebase";
 import type { Occurrence } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
 
-export const queryOccurrence = async (userId:string, startTime: number, endTime:number) => {
+const queryOccurrence = async (userId:string | undefined, startTime: number, endTime:number) => {
   try {
     const occurrenceRef = collection(db, `users/${userId}/occurrences`);
     const querySnapshot = await getDocs(query(occurrenceRef, where("occurrenceTimestamp", ">=", startTime), where("occurrenceTimestamp", "<=", endTime)));
@@ -19,9 +19,10 @@ export const queryOccurrence = async (userId:string, startTime: number, endTime:
   }
 }
 
-export const useQueryOccurrence = (userId: string, startTime: number, endTime: number) => {
+export const useQueryOccurrences = (userId: string | undefined, startTime: number, endTime: number) => {
   return useQuery({
-    queryKey: ['occurrences', startTime, endTime],
+    queryKey: [userId, 'occurrences', startTime, endTime],
     queryFn: () => queryOccurrence(userId, startTime, endTime),
+    enabled: userId !== undefined
   });
 };

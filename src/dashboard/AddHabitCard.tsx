@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { testSimpleWrite } from "../dao/addHabit";
+import { useAddHabit } from "../dao/useAddHabit";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuthUser } from "../dao/useAuthUser";
 
 export const AddHabitCard = () => {
+  const queryClient = useQueryClient();
+  const {user} = useAuthUser();
   const [habitName, setHabitName] = useState('');
   const [frequency, setFrequency] = useState<'daily'|'weekly'>('daily');
+  const userId = user?.uid;
+  const addHabitMutation = useAddHabit(userId);
   
   return (
     <div className="basis-1/5 bg-white rounded-lg shadow p-6">
@@ -29,8 +35,11 @@ export const AddHabitCard = () => {
         <button
           type="submit"
           className="w-full bg-primary-blue-green text-white py-2 rounded hover:bg-primary-blue-green-hover transition"
-          onClick={() => {
-            testSimpleWrite();
+          onClick={(e) => {
+            addHabitMutation.mutate({ name: habitName, frequency });
+            setHabitName('');
+            e.preventDefault();
+            queryClient.invalidateQueries({ queryKey: [userId, 'habits', frequency] });
           }}
         >
           Add Habit
