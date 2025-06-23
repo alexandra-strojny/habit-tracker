@@ -6,7 +6,7 @@ const queryClient = new QueryClient()
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="bg-background-light p-2 h-screen">
+      <div className="bg-background-light h-screen">
         <AppRoutes />
       </div>
     </QueryClientProvider>

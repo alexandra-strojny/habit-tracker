@@ -9,6 +9,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../dao/useAuthUser";
 import { useDeleteOccurrence } from "../dao/useDeleteOccurrence";
 import { Tooltip } from "react-tooltip";
+import { useState } from "react";
+import { EditHabitModal } from "./EditHabitModal";
 
 export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   const queryClient = useQueryClient();
@@ -17,6 +19,8 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   const userId = user?.uid;
   const addOccurrenceMutation = useAddOccurrence(userId);
   const deleteOccurrenceMutation = useDeleteOccurrence(userId);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 
   const dates = isDaily ? getCurrentWeekDates() : getCurrentBiMonthlyDates();
 
@@ -41,10 +45,19 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   }
 
   const generateDateRow = () => {
+    const today = new Date();
+    const shouldHighlightToday = (date: Date) => {
+      if (isDaily) {
+        return date.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
+      }
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      return startOfWeek.setHours(0, 0, 0, 0) === date.setHours(0, 0, 0, 0);
+    };
     return dates.map((date) => (
       <span
         key={date.toISOString()}
-        className="block text-nowrap text-xs text-center text-muted-text -rotate-45 pl-2"
+        className={`block text-nowrap text-xs text-center text-muted-text -rotate-45 pl-2 ${shouldHighlightToday(date) ? 'text-primary-blue-green font-bold' : ''}`}
       >
         {isDaily ? formatShortDate(date) : formatShortDateAsWeek(date)}
       </span>
@@ -54,10 +67,15 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   const generateHabitRow = (habit: Habit) => {
     return (
       <div key={habit.id} className="grid grid-cols-10 gap-4 mb-2 items-end">
-        <div className="col-span-3 text-xs text-muted-text truncate text-right"
+        <div className="col-span-3 text-xs text-muted-text text-right break-all"
           data-tooltip-id={`${habit.id}-tooltip`}
           data-tooltip-content={habit.name}>
-          {habit.name}
+          <button 
+          className="text-wrap text-right hover:text-primary-blue-green-hover hover:underline cursor-pointer"
+            onClick={()=> {
+            setSelectedHabit(habit);
+            setShowModal(true);
+          }}>{habit.name}</button>
         </div>
         {habit.name.length >= 16 && <Tooltip id={`${habit.id}-tooltip`} clickable />}
         {dates.map((date, index) => {
@@ -92,7 +110,7 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
     return <div>Error loading habits</div>;
   }
 
-  return (
+  return (<>
     <div className="flex-1 bg-white rounded-xl shadow-md py-6 pl-6 pr-12">
       <div className="flex flex-col justify-center space-y-6 ">
         <p className={isDaily ? 'mb-6' : 'mb-12'}>{title}</p>
@@ -110,5 +128,12 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
         )}
       </div>
     </div>
-  );
+    {selectedHabit && 
+      <EditHabitModal 
+        showModal={showModal}
+        setShowModal={setShowModal}
+        habit={selectedHabit} 
+        setHabit={setSelectedHabit}
+    />}
+  </>);
 };
