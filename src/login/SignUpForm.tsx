@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { isMobileOnly } from 'react-device-detect';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { useCreateUser } from '../dao/useCreateUser';
 
@@ -14,7 +13,7 @@ export const SignUpForm = ({onSwitch}: {onSwitch:()=>void}) => {
   };
 
   return (
-    <div className={`flex items-center justify-center ${isMobileOnly ? "flex mt-32" : "flex min-h-screen"}`}>
+    <div className="flex justify-center">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6">Sign up</h2>
         <form onSubmit={handleSubmit}>

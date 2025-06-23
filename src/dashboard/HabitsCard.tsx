@@ -8,11 +8,12 @@ import { useAddOccurrence } from "../dao/useAddOccurrence";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../dao/useAuthUser";
 import { useDeleteOccurrence } from "../dao/useDeleteOccurrence";
+import { Tooltip } from "react-tooltip";
 
 export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   const queryClient = useQueryClient();
   const isDaily = frequency === 'daily';
-  const { user } = useAuthUser();
+  const user = useAuthUser();
   const userId = user?.uid;
   const addOccurrenceMutation = useAddOccurrence(userId);
   const deleteOccurrenceMutation = useDeleteOccurrence(userId);
@@ -52,10 +53,13 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
 
   const generateHabitRow = (habit: Habit) => {
     return (
-      <div key={habit.id} className="grid grid-cols-9 gap-4 mb-2 items-end">
-        <div className="col-span-2 text-xs text-muted-text truncate">
+      <div key={habit.id} className="grid grid-cols-10 gap-4 mb-2 items-end">
+        <div className="col-span-3 text-xs text-muted-text truncate text-right"
+          data-tooltip-id={`${habit.id}-tooltip`}
+          data-tooltip-content={habit.name}>
           {habit.name}
         </div>
+        {habit.name.length >= 16 && <Tooltip id={`${habit.id}-tooltip`} clickable />}
         {dates.map((date, index) => {
           const occurrence = allOccurrences?.find(
             (occ) =>
@@ -93,14 +97,16 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
       <div className="flex flex-col justify-center space-y-6 ">
         <p className={isDaily ? 'mb-6' : 'mb-12'}>{title}</p>
         {/* Dates row */}
-        <div className="grid grid-cols-9 gap-4 items-end mb-4">
-          <div className="col-span-2"></div> {/* Empty cell for alignment */}
-          {generateDateRow()}
-        </div>
         {!allHabits || allHabits.length === 0 ? (
           <div className="text-center text-muted-text">No habits found</div>
         ) : (
-          allHabits.map((habit) => generateHabitRow(habit))
+          <>
+            <div className="grid grid-cols-10 gap-4 items-end mb-2">
+              <div className="col-span-3"></div> {/* Empty cell for alignment */}
+              {generateDateRow()}
+            </div>
+            {allHabits.map((habit) => generateHabitRow(habit))}
+          </>
         )}
       </div>
     </div>

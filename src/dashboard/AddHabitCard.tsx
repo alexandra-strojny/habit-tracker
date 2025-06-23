@@ -5,7 +5,7 @@ import { useAuthUser } from "../dao/useAuthUser";
 
 export const AddHabitCard = () => {
   const queryClient = useQueryClient();
-  const {user} = useAuthUser();
+  const user = useAuthUser();
   const [habitName, setHabitName] = useState('');
   const [frequency, setFrequency] = useState<'daily'|'weekly'>('daily');
   const userId = user?.uid;

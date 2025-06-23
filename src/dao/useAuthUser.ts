@@ -14,9 +14,7 @@ export const useAuthUser = () => {
     return () => unsubscribe();
   }, [auth]);
 
-  return {
-    user: currentUser,
-  }
+  return currentUser
 };
 
 export const getDisplayName = (user: User | null): string => {
