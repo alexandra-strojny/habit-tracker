@@ -1,7 +1,7 @@
 import { CircularButton } from "../components/CircularButton";
 import type { Frequency, Habit } from "../types/types";
 import { useQueryOccurrences } from "../dao/useQueryOccurrence";
-import { formatShortDate, formatShortDateAsWeek, getCurrentBiMonthlyBounds, getCurrentBiMonthlyDates, getCurrentWeekBounds, getCurrentWeekDates } from "./util";
+import { formatShortDate, formatShortDateAsWeek, getCurrentBiMonthlyBounds, getCurrentBiMonthlyDates, getCurrentWeekBounds, getCurrentWeekDates, getWeekBounds } from "./util";
 import { EmptyCircularButton } from "../components/EmptyCircularButton";
 import { useAddOccurrence } from "../dao/useAddOccurrence";
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,6 +27,16 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
   const { startTime, endTime } = isDaily ? getCurrentWeekBounds() : getCurrentBiMonthlyBounds(dates);
   const { data: allOccurrences } = useQueryOccurrences(userId, startTime, endTime);
 
+  const findWeeklyOccurrence = (habit: Habit, date: Date) => {
+    const { startTime, endTime } = getWeekBounds(date)
+    return allOccurrences?.find(
+      (occ) =>
+        occ.habitId === habit.id &&
+        occ.occurrenceTimestamp >= startTime &&
+        occ.occurrenceTimestamp <= endTime
+    )
+  }
+
   const logOccurrence = async (habitId: string, date: Date) => {
     const occurrenceTimestamp = date.getTime();
     addOccurrenceMutation.mutate({ habitId, occurrenceTimestamp });
@@ -35,19 +45,11 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
 
   const deleteOccurrence = async (occurrenceId: string, habit:Habit, date: Date) => {
     if (allOccurrences && habit.frequency === 'weekly') {
-      // Clone date and set to midnight Sunday (start of week)
-      const weekStartDate = new Date(date);
-      weekStartDate.setDate(date.getDate() - date.getDay());
-      weekStartDate.setHours(0, 0, 0, 0);
-
-      // Clone date and set to 11:59:59.999pm Saturday (end of week)
-      const weekEndDate = new Date(date);
-      weekEndDate.setDate(date.getDate() + (6 - date.getDay()));
-      weekEndDate.setHours(23, 59, 59, 999);
+      const { startTime, endTime } = getWeekBounds(date)
       const entireWeekOccurrences = allOccurrences.filter(
         occurrence => occurrence.habitId === habit.id &&
-        occurrence.occurrenceTimestamp >= weekStartDate.getTime() &&
-        occurrence.occurrenceTimestamp <= weekEndDate.getTime()
+        occurrence.occurrenceTimestamp >= startTime &&
+        occurrence.occurrenceTimestamp <= endTime
       );
       entireWeekOccurrences.forEach(occurrence => deleteOccurrenceMutation.mutate({occurrenceId:occurrence.id}))
       console.log(entireWeekOccurrences)
@@ -91,11 +93,11 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
         </div>
         {habit.name.length >= 16 && <Tooltip id={`${habit.id}-tooltip`} clickable />}
         {dates.map((date, index) => {
-          const occurrence = allOccurrences?.find(
+          const occurrence = isDaily ? allOccurrences?.find(
             (occ) =>
               occ.habitId === habit.id &&
               new Date(occ.occurrenceTimestamp).setHours(0, 0, 0, 0) === date.getTime()
-          );
+          ) : findWeeklyOccurrence(habit, date)
 
           return (
             <div

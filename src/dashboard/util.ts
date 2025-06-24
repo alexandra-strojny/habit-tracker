@@ -1,22 +1,26 @@
-export const getCurrentWeekBounds = (): { startTime: number; endTime: number } => {
-  const now = new Date();
+export const getWeekBounds = (date: Date): { startTime: number; endTime: number } => {
   // Get the current day of week (0 = Sunday, 6 = Saturday)
-  const dayOfWeek = now.getDay();
+  const dayOfWeek = date.getDay();
 
   // Clone date and set to midnight Sunday (start of week)
-  const weekStartDate = new Date(now);
-  weekStartDate.setDate(now.getDate() - dayOfWeek);
+  const weekStartDate = new Date(date);
+  weekStartDate.setDate(date.getDate() - dayOfWeek);
   weekStartDate.setHours(0, 0, 0, 0);
 
   // Clone date and set to 11:59:59.999pm Saturday (end of week)
-  const weekEndDate = new Date(now);
-  weekEndDate.setDate(now.getDate() + (6 - dayOfWeek));
+  const weekEndDate = new Date(date);
+  weekEndDate.setDate(date.getDate() + (6 - dayOfWeek));
   weekEndDate.setHours(23, 59, 59, 999);
 
   return {
     startTime: weekStartDate.getTime(),
     endTime: weekEndDate.getTime(),
   };
+}
+
+export const getCurrentWeekBounds = (): { startTime: number; endTime: number } => {
+  const now = new Date();
+  return getWeekBounds(now);
 }
 
 export const getCurrentWeekDates = ()=>{

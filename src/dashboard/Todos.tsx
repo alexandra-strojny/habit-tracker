@@ -58,7 +58,7 @@ export const Todos = ({
           {[...todaysDailyHabits, ...todaysWeeklyHabits].length === 0 &&
           <div className="pb-2 mb-2">
             🎉
-            Congrats, you've completed all task for today!
+            Congrats, you've completed all tasks for today!
           </div>}
       {[...todaysDailyHabits, ...todaysWeeklyHabits].map((habit) => (
           <div className="flex items-center bg-gray-100 p-2 rounded-lg mb-2">
