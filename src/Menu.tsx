@@ -6,7 +6,7 @@ export const Menu = () => {
   const logOutMutation = useLogOut();
 
   return (
-    <div className="flex w-full px-8 py-8 shadow-sm bg-background-light">
+    <div className="flex w-full px-8 py-8 shadow-sm bg-white">
       <h2 className="text-4xl">My Habits</h2>
       {user && user.uid && (
       <div className="flex justify-end items-center flex-1">

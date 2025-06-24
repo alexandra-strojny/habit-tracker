@@ -9,18 +9,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../dao/useAuthUser";
 import { useDeleteOccurrence } from "../dao/useDeleteOccurrence";
 import { Tooltip } from "react-tooltip";
-import { useState } from "react";
-import { EditHabitModal } from "./EditHabitModal";
+import { useNavigate } from "react-router-dom";
 
 export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const isDaily = frequency === 'daily';
   const user = useAuthUser();
   const userId = user?.uid;
   const addOccurrenceMutation = useAddOccurrence(userId);
   const deleteOccurrenceMutation = useDeleteOccurrence(userId);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 
   const dates = isDaily ? getCurrentWeekDates() : getCurrentBiMonthlyDates();
 
@@ -73,8 +71,7 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
           <button 
           className="text-wrap text-right hover:text-primary-blue-green-hover hover:underline cursor-pointer"
             onClick={()=> {
-            setSelectedHabit(habit);
-            setShowModal(true);
+            navigate(`/habits/${habit.id}`);
           }}>{habit.name}</button>
         </div>
         {habit.name.length >= 16 && <Tooltip id={`${habit.id}-tooltip`} clickable />}
@@ -128,12 +125,5 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
         )}
       </div>
     </div>
-    {selectedHabit && 
-      <EditHabitModal 
-        showModal={showModal}
-        setShowModal={setShowModal}
-        habit={selectedHabit} 
-        setHabit={setSelectedHabit}
-    />}
   </>);
 };
