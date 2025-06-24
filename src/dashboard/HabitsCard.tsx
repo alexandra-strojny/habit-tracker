@@ -1,6 +1,5 @@
 import { CircularButton } from "../components/CircularButton";
 import type { Frequency, Habit } from "../types/types";
-import { useQueryHabits } from "../dao/useQueryHabits";
 import { useQueryOccurrences } from "../dao/useQueryOccurrence";
 import { formatShortDate, formatShortDateAsWeek, getCurrentBiMonthlyBounds, getCurrentBiMonthlyDates, getCurrentWeekBounds, getCurrentWeekDates } from "./util";
 import { EmptyCircularButton } from "../components/EmptyCircularButton";
@@ -11,7 +10,7 @@ import { useDeleteOccurrence } from "../dao/useDeleteOccurrence";
 import { Tooltip } from "react-tooltip";
 import { useNavigate } from "react-router-dom";
 
-export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
+export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefined, frequency: Frequency}) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const isDaily = frequency === 'daily';
@@ -22,11 +21,8 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
 
   const dates = isDaily ? getCurrentWeekDates() : getCurrentBiMonthlyDates();
 
-  const title = isDaily ? "Daily Habits" : "Weekly Habits";
-  const { data: allHabits, isError, isLoading } = useQueryHabits(
-    userId,
-    frequency
-  );
+  const title = isDaily ? "Daily Streak" : "Weekly Streak";
+  const frequencyHabits = allHabits?.filter((habit) => habit.frequency === frequency);
 
   const { startTime, endTime } = isDaily ? getCurrentWeekBounds() : getCurrentBiMonthlyBounds(dates);
   const { data: allOccurrences } = useQueryOccurrences(userId, startTime, endTime);
@@ -34,12 +30,31 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
   const logOccurrence = async (habitId: string, date: Date) => {
     const occurrenceTimestamp = date.getTime();
     addOccurrenceMutation.mutate({ habitId, occurrenceTimestamp });
-    queryClient.invalidateQueries({queryKey:[userId, "occurrences", startTime, endTime]});
+    queryClient.invalidateQueries({queryKey:[userId, "occurrences"]});
   }
 
-  const deleteOccurrence = async (occurrenceId: string) => {
-    deleteOccurrenceMutation.mutate({ occurrenceId });
-    queryClient.invalidateQueries({queryKey:[userId, "occurrences", startTime, endTime]});
+  const deleteOccurrence = async (occurrenceId: string, habit:Habit, date: Date) => {
+    if (allOccurrences && habit.frequency === 'weekly') {
+      // Clone date and set to midnight Sunday (start of week)
+      const weekStartDate = new Date(date);
+      weekStartDate.setDate(date.getDate() - date.getDay());
+      weekStartDate.setHours(0, 0, 0, 0);
+
+      // Clone date and set to 11:59:59.999pm Saturday (end of week)
+      const weekEndDate = new Date(date);
+      weekEndDate.setDate(date.getDate() + (6 - date.getDay()));
+      weekEndDate.setHours(23, 59, 59, 999);
+      const entireWeekOccurrences = allOccurrences.filter(
+        occurrence => occurrence.habitId === habit.id &&
+        occurrence.occurrenceTimestamp >= weekStartDate.getTime() &&
+        occurrence.occurrenceTimestamp <= weekEndDate.getTime()
+      );
+      entireWeekOccurrences.forEach(occurrence => deleteOccurrenceMutation.mutate({occurrenceId:occurrence.id}))
+      console.log(entireWeekOccurrences)
+    } else {
+      deleteOccurrenceMutation.mutate({ occurrenceId });
+    }
+    queryClient.invalidateQueries({queryKey:[userId, "occurrences"]});
   }
 
   const generateDateRow = () => {
@@ -88,7 +103,7 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
               className="col-span-1 flex justify-center"
             >
               {occurrence ? (
-                <CircularButton onClick={() => deleteOccurrence(occurrence.id)} />
+                <CircularButton onClick={() => deleteOccurrence(occurrence.id, habit, date)} />
               ) : (
                 <EmptyCircularButton onClick={() => logOccurrence(habit.id, date)} />
               )}
@@ -99,20 +114,12 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
     );
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError) {
-    return <div>Error loading habits</div>;
-  }
-
   return (<>
     <div className="flex-1 bg-white rounded-xl shadow-md py-6 pl-6 pr-12">
       <div className="flex flex-col justify-center space-y-6 ">
         <p className={isDaily ? 'mb-6' : 'mb-12'}>{title}</p>
         {/* Dates row */}
-        {!allHabits || allHabits.length === 0 ? (
+        {!frequencyHabits || frequencyHabits.length === 0 ? (
           <div className="text-center text-muted-text">No habits found</div>
         ) : (
           <>
@@ -120,7 +127,7 @@ export const HabitsCard = ({frequency}: {frequency: Frequency}) => {
               <div className="col-span-3"></div> {/* Empty cell for alignment */}
               {generateDateRow()}
             </div>
-            {allHabits.map((habit) => generateHabitRow(habit))}
+            {frequencyHabits.map((habit) => generateHabitRow(habit))}
           </>
         )}
       </div>

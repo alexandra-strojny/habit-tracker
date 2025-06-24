@@ -50,7 +50,7 @@ export const AddHabitModal = ({showModal, setShowModal}: {showModal:boolean, set
                 onClick={() => {
                   addHabitMutation.mutate({ name: habitName, frequency });
                   setHabitName('');
-                  queryClient.invalidateQueries({ queryKey: [userId, 'habits', frequency] });
+                  queryClient.invalidateQueries({ queryKey: [userId, 'habits'] });
                 } }>
                 Submit
               </PrimaryButton>

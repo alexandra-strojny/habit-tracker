@@ -69,7 +69,7 @@ export const EditHabitModal = ({
                 className="flex-1"
                 onClick={() => {
                   editHabitMutation.mutate({ ...habit, name: habit.name, frequency: habit.frequency });
-                  queryClient.invalidateQueries({ queryKey: [userId, 'habits', habit.frequency] });
+                  queryClient.invalidateQueries({ queryKey: [userId, 'habits'] });
                   setShowModal(false);
                 } }>
                 Submit
