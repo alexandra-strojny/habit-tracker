@@ -7,7 +7,6 @@ import { useAddOccurrence } from "../dao/useAddOccurrence";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../dao/useAuthUser";
 import { useDeleteOccurrence } from "../dao/useDeleteOccurrence";
-import { Tooltip } from "react-tooltip";
 import { useNavigate } from "react-router-dom";
 
 export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefined, frequency: Frequency}) => {
@@ -52,7 +51,6 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
         occurrence.occurrenceTimestamp <= endTime
       );
       entireWeekOccurrences.forEach(occurrence => deleteOccurrenceMutation.mutate({occurrenceId:occurrence.id}))
-      console.log(entireWeekOccurrences)
     } else {
       deleteOccurrenceMutation.mutate({ occurrenceId });
     }
@@ -82,16 +80,13 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
   const generateHabitRow = (habit: Habit) => {
     return (
       <div key={habit.id} className="grid grid-cols-10 gap-4 mb-2 items-end">
-        <div className="col-span-3 text-xs text-muted-text text-right break-all"
-          data-tooltip-id={`${habit.id}-tooltip`}
-          data-tooltip-content={habit.name}>
+        <div className="col-span-3 text-xs text-muted-text text-right break-all">
           <button 
           className="text-wrap text-right hover:text-primary-blue-green-hover hover:underline cursor-pointer"
             onClick={()=> {
             navigate(`/habits/${habit.id}`);
           }}>{habit.name}</button>
         </div>
-        {habit.name.length >= 16 && <Tooltip id={`${habit.id}-tooltip`} clickable />}
         {dates.map((date, index) => {
           const occurrence = isDaily ? allOccurrences?.find(
             (occ) =>

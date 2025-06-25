@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AddHabitModal } from "./AddHabitModal";
 import { HabitsCard } from "./HabitsCard";
 import { PrimaryButton } from "../components/PrimaryButton";
-import { Todos } from "./Todos";
+import { TodoCard } from "./TodoCard";
 import { useQueryAllHabits } from "../dao/useQueryAllHabits";
 import { useAuthUser } from "../dao/useAuthUser";
 
@@ -31,7 +31,7 @@ export const Dashboard = () => {
         </PrimaryButton>
       </div>
       <div className="mt-4 mb-4 px-6">
-        <Todos allHabits={allHabits} />
+        <TodoCard allHabits={allHabits} />
       </div>
       <div className="flex flex-col md:flex-row items-stretch gap-2 mt-4 mb-4 px-6">
         <HabitsCard frequency="daily" allHabits={allHabits} />

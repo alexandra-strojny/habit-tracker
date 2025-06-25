@@ -1,3 +1,17 @@
+import type { Habit } from "../types/types";
+
+export const partition = (
+  arr: Habit[],
+  fn: (arg0: Habit, arg1: number, arg2: Habit[]) => boolean
+): [Habit[], Habit[]] =>
+  arr.reduce<[Habit[], Habit[]]>(
+    (acc, val, i, arr) => {
+      acc[fn(val, i, arr) ? 0 : 1].push(val);
+      return acc;
+    },
+    [[], []]
+  );
+
 export const getWeekBounds = (date: Date): { startTime: number; endTime: number } => {
   // Get the current day of week (0 = Sunday, 6 = Saturday)
   const dayOfWeek = date.getDay();
