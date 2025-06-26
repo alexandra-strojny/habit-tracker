@@ -75,9 +75,9 @@ export const TodoCard = ({
 
   return (
     <div className="flex-1 bg-white rounded-xl shadow-md p-6">
-      <div className="flex flex-col justify-center space-y-6gap-4">
+      <div className="flex flex-col justify-center space-y-6 gap-2">
         <div className="flex w-full">
-          <p className="text-lg mb-4">Today's Tasks</p>
+          <p className="text-lg">Today's Tasks</p>
           <div className="flex justify-end items-center flex-1">
             <ToggleSwitch text={"Show Completed"} value={showCompleted} setValue={setShowCompleted}/>
           </div>
@@ -90,7 +90,7 @@ export const TodoCard = ({
             </div>
           }
           {[...dailyComplete, ...weeklyComplete].map((habit) => (
-              <div className="flex items-center bg-gray-100 p-2 rounded-lg mb-2">
+              <div className="flex items-center bg-gray-100 p-2 rounded-lg mb-2" key={`today-${habit.id}`}>
                 <ColoredCheckbox checked={false} toggleChecked={() => logOccurrence(habit.id)} />
                 <button 
                   className="text-wrap text-sm text-right hover:text-primary-blue-green-hover hover:underline cursor-pointer ml-2"

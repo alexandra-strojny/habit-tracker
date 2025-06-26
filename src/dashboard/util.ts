@@ -61,11 +61,11 @@ export const getCurrentBiMonthlyDates = (): Date[] => {
 
   // Go back 3 Sundays
   const startSunday = new Date(currentSunday);
-  startSunday.setDate(currentSunday.getDate() - 21); // 3 weeks back
+  startSunday.setDate(currentSunday.getDate() - 21);
 
   // Go forward 3 Sundays (so total is 7 weeks including current)
   const endSunday = new Date(currentSunday);
-  endSunday.setDate(currentSunday.getDate() + 21); // 3 weeks forward
+  endSunday.setDate(currentSunday.getDate() + 21);
 
   // Generate all Sundays between startSunday and endSunday (inclusive)
   const sundays: Date[] = [];

@@ -43,7 +43,7 @@ export const LoginForm = ({onSwitch}: {onSwitch:()=>void}) => {
               required
             />
           </div>
-          <PrimaryButton onClick={()=>console.log("here")}>Login</PrimaryButton>
+          <PrimaryButton>Login</PrimaryButton>
           <button
             type="button"
             onClick={() => onSwitch()}

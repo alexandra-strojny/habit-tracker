@@ -70,7 +70,7 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
     return dates.map((date) => (
       <span
         key={date.toISOString()}
-        className={`block text-nowrap text-xs text-center text-muted-text -rotate-45 pl-2 ${shouldHighlightToday(date) ? 'text-primary-blue-green font-bold' : ''}`}
+        className={`block text-wrap md:text-nowrap text-xs text-center text-muted-text -rotate-0 md:-rotate-45 pl-2 ${shouldHighlightToday(date) ? 'text-primary-blue-green font-bold' : ''}`}
       >
         {isDaily ? formatShortDate(date) : formatShortDateAsWeek(date)}
       </span>
@@ -79,8 +79,8 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
 
   const generateHabitRow = (habit: Habit) => {
     return (
-      <div key={habit.id} className="grid grid-cols-10 gap-4 mb-2 items-end">
-        <div className="col-span-3 text-xs text-muted-text text-right break-all">
+      <div key={habit.id} className="grid grid-cols-10 md:grid-cols-9 gap-4 mb-2 items-center">
+        <div className="col-span-3 md:col-span-2 text-xs text-muted-text text-right">
           <button 
           className="text-wrap text-right hover:text-primary-blue-green-hover hover:underline cursor-pointer"
             onClick={()=> {
@@ -120,8 +120,8 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
           <div className="text-center text-muted-text">No habits found</div>
         ) : (
           <>
-            <div className="grid grid-cols-10 gap-4 items-end mb-2">
-              <div className="col-span-3"></div> {/* Empty cell for alignment */}
+            <div className="grid grid-cols-10 md:grid-cols-9 gap-4 items-end mb-2">
+              <div className="col-span-3 md:col-span-2"></div> {/* Empty cell for alignment */}
               {generateDateRow()}
             </div>
             {frequencyHabits.map((habit) => generateHabitRow(habit))}

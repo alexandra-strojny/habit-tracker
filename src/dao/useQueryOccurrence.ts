@@ -26,3 +26,32 @@ export const useQueryOccurrences = (userId: string | undefined, startTime: numbe
     enabled: userId !== undefined
   });
 };
+
+const queryOccurrenceByHabit = async (userId:string | undefined, habitId: string | undefined, startTime: number, endTime:number) => {
+  try {
+    const occurrenceRef = collection(db, `users/${userId}/occurrences`);
+    const querySnapshot = await getDocs(
+      query(occurrenceRef, 
+        where("habitId", "==", habitId),
+        where("occurrenceTimestamp", ">=", startTime),
+        where("occurrenceTimestamp", "<=", endTime)
+      ));
+    
+    const occurrences: Occurrence[] = [];
+    querySnapshot.forEach((doc) => {
+      occurrences.push({ id: doc.id, ...doc.data() } as Occurrence);
+    });
+
+    return occurrences;
+  } catch (error) {
+    console.error('Error querying occurrences:', error);
+  }
+}
+
+export const useQueryOccurrencesByHabit = (userId: string | undefined, habitId:string | undefined, startTime: number, endTime: number) => {
+  return useQuery({
+    queryKey: [userId, 'occurrences', habitId],
+    queryFn: () => queryOccurrenceByHabit(userId, habitId, startTime, endTime),
+    enabled: userId !== undefined || habitId !== undefined
+  });
+};
