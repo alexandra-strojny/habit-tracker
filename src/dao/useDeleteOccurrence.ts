@@ -10,52 +10,25 @@ const removeDateFromStreaks = (
   timestamp: number,
   frequency: Frequency,
 ): Streak[] => {
-  const msPerDay = 86400000;
-  const buffer = frequency === 'daily' ? msPerDay : 7 * msPerDay;
+  const buffer = frequency === 'weekly' ? 7 * 86400000 : 86400000;
 
   return streaks.flatMap(streak => {
-    // If the date is outside this streak, leave it untouched
-    if (timestamp < streak.startDate || timestamp > streak.endDate) {
-      return [streak];
-    }
+    if (timestamp < streak.startDate || timestamp > streak.endDate) return [streak];
 
-    const isSingleDay = streak.startDate === streak.endDate;
+    const isSingle = streak.startDate === streak.endDate;
+    if (isSingle && timestamp === streak.startDate) return [];
 
-    // If this is a single-day streak and we’re removing it → remove it
-    if (isSingleDay && streak.startDate === timestamp) {
-      return [];
-    }
-
-    // If the timestamp is exactly the start
     if (timestamp === streak.startDate) {
-      return [
-        {
-          startDate: streak.startDate + buffer,
-          endDate: streak.endDate,
-        },
-      ];
+      return [{ startDate: streak.startDate + buffer, endDate: streak.endDate }];
     }
 
-    // If the timestamp is exactly the end
     if (timestamp === streak.endDate) {
-      return [
-        {
-          startDate: streak.startDate,
-          endDate: streak.endDate - buffer,
-        },
-      ];
+      return [{ startDate: streak.startDate, endDate: streak.endDate - buffer }];
     }
 
-    // Otherwise, split into two streaks
     return [
-      {
-        startDate: streak.startDate,
-        endDate: timestamp - buffer,
-      },
-      {
-        startDate: timestamp + buffer,
-        endDate: streak.endDate,
-      },
+      { startDate: streak.startDate, endDate: timestamp - buffer },
+      { startDate: timestamp + buffer, endDate: streak.endDate },
     ];
   });
 }

@@ -1,7 +1,7 @@
 import { CircularButton } from "../components/CircularButton";
 import type { Frequency, Habit } from "../types/types";
 import { useQueryOccurrences } from "../dao/useQueryOccurrence";
-import { formatShortDate, formatShortDateAsWeek, getCurrentBiMonthlyBounds, getCurrentBiMonthlyDates, getCurrentWeekBounds, getCurrentWeekDates, getWeekBounds } from "./util";
+import { formatShortDate, formatShortDateAsWeek, getCurrentBiMonthlyBounds, getCurrentBiMonthlyDates, getCurrentWeekBounds, getCurrentWeekDates, getWeekBounds } from "../util/util";
 import { useAddOccurrence } from "../dao/useAddOccurrence";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../dao/useAuthUser";
@@ -79,8 +79,9 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
   };
 
   const generateHabitRow = (habit: Habit) => {
+    const gridClass = isDaily ? 'grid-cols-10 md:grid-cols-9' : 'grid-cols-8 md:grid-cols-7'
     return (
-      <div key={habit.id} className="grid grid-cols-10 md:grid-cols-9 gap-4 mb-2 items-center">
+      <div key={habit.id} className={`grid ${gridClass} gap-4 mb-2 items-center`}>
         <div className="col-span-3 md:col-span-2 text-xs text-muted-text text-right">
           <button 
           className="text-wrap text-right hover:text-primary-blue-green-hover hover:underline cursor-pointer"
@@ -117,15 +118,15 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
   };
 
   return (<>
-    <div className="flex-1 bg-white rounded-xl shadow-md py-6 pl-6 pr-12">
+    <div className={`flex-1 bg-white rounded-xl shadow-md py-2 pl-2 pr-8 md:pl-2 md:pr-10 lg:pl-6 lg:pr-12`}>
       <div className="flex flex-col justify-center space-y-6 ">
-        <p className={isDaily ? 'mb-6' : 'mb-12'}>{title}</p>
+        <p className={isDaily ? 'mb-4 md:mb-8 lg:mb-10' : 'mb-4 md:mb-14 lg:mb-16'}>{title}</p>
         {/* Dates row */}
         {!frequencyHabits || frequencyHabits.length === 0 ? (
           <div className="text-center text-muted-text">No habits found</div>
         ) : (
           <>
-            <div className="grid grid-cols-10 md:grid-cols-9 gap-4 items-end mb-2">
+            <div className={`grid ${isDaily ? 'grid-cols-10 md:grid-cols-9' : 'grid-cols-8 md:grid-cols-7'} gap-4 items-end mb-2`}>
               <div className="col-span-3 md:col-span-2"></div> {/* Empty cell for alignment */}
               {generateDateRow()}
             </div>

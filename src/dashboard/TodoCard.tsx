@@ -3,7 +3,7 @@ import { useAddOccurrence } from "../dao/useAddOccurrence";
 import { useAuthUser } from "../dao/useAuthUser";
 import { useQueryOccurrences } from "../dao/useQueryOccurrence";
 import type { Habit } from "../types/types";
-import { getCurrentWeekBounds, partition } from "./util";
+import { getCurrentWeekBounds, partition } from "../util/util";
 import { ColoredCheckbox } from "../components/ColoredCheckbox";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";

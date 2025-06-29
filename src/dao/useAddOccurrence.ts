@@ -29,18 +29,16 @@ const insertStreak = (streaks: Streak[], timestamp: number): Streak[] =>{
 const mergeStreaks = (streaks: Streak[], frequency: Frequency): Streak[] => {
   if (streaks.length === 0) return [];
 
+  const buffer = frequency === 'weekly' ? 7 * 86400000 : 86400000;
+
   const merged: Streak[] = [];
   let current = { ...streaks[0] };
 
-  const msPerDay = 86400000;
-  const buffer =
-    frequency === 'daily' ? msPerDay : 7 * msPerDay;
-
   for (let i = 1; i < streaks.length; i++) {
     const next = streaks[i];
+    const gap = next.startDate - current.endDate;
 
-    // If within the buffer, merge
-    if (next.startDate <= current.endDate + buffer) {
+    if (gap <= buffer) {
       current.endDate = Math.max(current.endDate, next.endDate);
     } else {
       merged.push(current);
