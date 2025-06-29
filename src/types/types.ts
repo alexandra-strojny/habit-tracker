@@ -4,6 +4,12 @@ export interface Habit {
   name: string;
   frequency: 'daily' | 'weekly';
   createdAt: Date;
+  streaks: Streak[]
+}
+
+export interface Streak {
+  startDate: number
+  endDate: number
 }
 
 export interface Occurrence {

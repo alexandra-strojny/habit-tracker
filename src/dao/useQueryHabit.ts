@@ -3,7 +3,7 @@ import type { Habit } from "../types/types";
 import { db } from "../firebase";
 import { useQuery } from "@tanstack/react-query";
 
-const queryHabit = async (userId: string | undefined, habitId: string | undefined) => {
+export const queryHabit = async (userId: string | undefined, habitId: string | undefined) => {
   const habit = await getDoc(doc(db, `users/${userId}/habits/${habitId}`));
   if (habit.exists()) {
     return { id: habit.id, ...habit.data() } as Habit;

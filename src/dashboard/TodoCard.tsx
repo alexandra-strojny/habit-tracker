@@ -21,8 +21,8 @@ export const TodoCard = ({
   const userId = user?.uid;
   const { startTime, endTime } = getCurrentWeekBounds();
   const { data: allOccurrences } = useQueryOccurrences(userId, startTime, endTime);
-  const addOccurrenceMutation = useAddOccurrence(userId);
-  const deleteOccurrenceMutation = useDeleteOccurrence(userId);
+  const addOccurrenceMutation = useAddOccurrence(queryClient, userId);
+  const deleteOccurrenceMutation = useDeleteOccurrence(queryClient, userId);
   const [showCompleted, setShowCompleted] = useState(false);
 
   if (!allHabits || allHabits.length === 0) {
@@ -52,7 +52,6 @@ export const TodoCard = ({
   const logOccurrence = async (habitId: string) => {
     const now = new Date()
     addOccurrenceMutation.mutate({ habitId, occurrenceTimestamp: now.getTime() });
-    queryClient.invalidateQueries({queryKey:[userId, "occurrences"]});
   }
 
   const deleteOccurrence = async (habit:Habit) => {
@@ -68,9 +67,8 @@ export const TodoCard = ({
         occurrence.occurrenceTimestamp >= startQuery &&
         occurrence.occurrenceTimestamp <= endQuery
       );
-      entireWeekOccurrences.forEach(occurrence => deleteOccurrenceMutation.mutate({occurrenceId:occurrence.id}))
+      entireWeekOccurrences.forEach(occurrence => deleteOccurrenceMutation.mutate({occurrenceId:occurrence.id, occurrenceTimestamp: occurrence.occurrenceTimestamp, habitId: habit.id}))
     }
-    queryClient.invalidateQueries({queryKey:[userId, "occurrences"]});
   }
 
   return (

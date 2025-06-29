@@ -1,14 +1,14 @@
 import { Loader2 } from 'lucide-react';
 
-interface CircularButtonProps {
+interface DayCircleButtonProps {
   onClick: () => void;
   state: 'empty' | 'filled' | 'loading';
+  key:string,
   text?: string | number;
 }
 
-export const CircularButton = ({ onClick, state, text }: CircularButtonProps) => {
-
-  let className = "flex items-center justify-center rounded-full text-center transition h-5 w-5 md:h-6 md:w-6 lg:h-7 lg:w-7"
+export const DayCircleButton = ({ onClick, state, key, text }: DayCircleButtonProps) => {
+  let className = "flex items-center justify-center rounded-full text-center transition-all duration-300 h-7 w-7 text-sm"
   if (state === 'filled') {
     className += ' bg-primary-blue-green text-white hover:bg-primary-blue-green-hover cursor-pointer'
   } else if (state === 'empty') {
@@ -23,6 +23,7 @@ export const CircularButton = ({ onClick, state, text }: CircularButtonProps) =>
       onClick={onClick}
       disabled={state === 'loading'}
       className={className}
+      key={key}
     >
       {state === 'loading' ? (
         <Loader2 className="h-4 w-4 animate-spin" />

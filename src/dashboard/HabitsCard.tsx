@@ -2,12 +2,12 @@ import { CircularButton } from "../components/CircularButton";
 import type { Frequency, Habit } from "../types/types";
 import { useQueryOccurrences } from "../dao/useQueryOccurrence";
 import { formatShortDate, formatShortDateAsWeek, getCurrentBiMonthlyBounds, getCurrentBiMonthlyDates, getCurrentWeekBounds, getCurrentWeekDates, getWeekBounds } from "./util";
-import { EmptyCircularButton } from "../components/EmptyCircularButton";
 import { useAddOccurrence } from "../dao/useAddOccurrence";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../dao/useAuthUser";
 import { useDeleteOccurrence } from "../dao/useDeleteOccurrence";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefined, frequency: Frequency}) => {
   const queryClient = useQueryClient();
@@ -15,8 +15,9 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
   const isDaily = frequency === 'daily';
   const user = useAuthUser();
   const userId = user?.uid;
-  const addOccurrenceMutation = useAddOccurrence(userId);
-  const deleteOccurrenceMutation = useDeleteOccurrence(userId);
+  const addOccurrenceMutation = useAddOccurrence(queryClient, userId);
+  const deleteOccurrenceMutation = useDeleteOccurrence(queryClient, userId);
+  const [occurrenceKey, setOccurrenceKey] = useState<string>('');
 
   const dates = isDaily ? getCurrentWeekDates() : getCurrentBiMonthlyDates();
 
@@ -36,13 +37,14 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
     )
   }
 
-  const logOccurrence = async (habitId: string, date: Date) => {
+  const logOccurrence = async (index: number, habitId: string, date: Date) => {
+    setOccurrenceKey(`${habitId}-date-${index}`)
     const occurrenceTimestamp = date.getTime();
     addOccurrenceMutation.mutate({ habitId, occurrenceTimestamp });
-    queryClient.invalidateQueries({queryKey:[userId, "occurrences"]});
   }
 
-  const deleteOccurrence = async (occurrenceId: string, habit:Habit, date: Date) => {
+  const deleteOccurrence = async (index: number, occurrenceId: string, habit:Habit, date: Date) => {
+    setOccurrenceKey(`${habit.id}-date-${index}`)
     if (allOccurrences && habit.frequency === 'weekly') {
       const { startTime, endTime } = getWeekBounds(date)
       const entireWeekOccurrences = allOccurrences.filter(
@@ -50,11 +52,10 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
         occurrence.occurrenceTimestamp >= startTime &&
         occurrence.occurrenceTimestamp <= endTime
       );
-      entireWeekOccurrences.forEach(occurrence => deleteOccurrenceMutation.mutate({occurrenceId:occurrence.id}))
+      entireWeekOccurrences.forEach(occurrence => deleteOccurrenceMutation.mutate({occurrenceId:occurrence.id, occurrenceTimestamp: occurrence.occurrenceTimestamp, habitId:habit.id}))
     } else {
-      deleteOccurrenceMutation.mutate({ occurrenceId });
+      deleteOccurrenceMutation.mutate({ occurrenceId, occurrenceTimestamp: date.getTime(), habitId:habit.id });
     }
-    queryClient.invalidateQueries({queryKey:[userId, "occurrences"]});
   }
 
   const generateDateRow = () => {
@@ -93,17 +94,21 @@ export const HabitsCard = ({allHabits, frequency}: {allHabits: Habit[] | undefin
               occ.habitId === habit.id &&
               new Date(occ.occurrenceTimestamp).setHours(0, 0, 0, 0) === date.getTime()
           ) : findWeeklyOccurrence(habit, date)
-
+          const key = `${habit.id}-date-${index}`
           return (
             <div
-              key={`${habit.id}-date-${index}`}
+              key={key}
               className="col-span-1 flex justify-center"
             >
-              {occurrence ? (
-                <CircularButton onClick={() => deleteOccurrence(occurrence.id, habit, date)} />
-              ) : (
-                <EmptyCircularButton onClick={() => logOccurrence(habit.id, date)} />
-              )}
+              {
+                (deleteOccurrenceMutation.isPending || addOccurrenceMutation.isPending) && occurrenceKey === key ?
+                  <CircularButton state={'loading'} onClick={() => {}} /> :
+                  occurrence ? (
+                    <CircularButton state={'filled'} onClick={() => deleteOccurrence(index, occurrence.id, habit, date)} />
+                  ) : (
+                    <CircularButton state={'empty'} onClick={() => logOccurrence(index, habit.id, date)} />
+                  )
+              }
             </div>
           );
         })}

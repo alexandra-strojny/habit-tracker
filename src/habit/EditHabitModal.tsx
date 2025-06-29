@@ -20,7 +20,7 @@ export const EditHabitModal = ({
   const user = useAuthUser();
   const userId = user?.uid;
   const [habit, setHabit] = useState<Habit>(defaultHabit || { id: '', name: '', frequency: 'daily' });
-  const editHabitMutation = useEditHabit(userId, habit?.id || '');
+  const editHabitMutation = useEditHabit(queryClient, userId, habit?.id || '');
 
   const setHabitName = (name: string) => {
     setHabit({ ...habit, name });
@@ -69,7 +69,6 @@ export const EditHabitModal = ({
                 className="flex-1"
                 onClick={() => {
                   editHabitMutation.mutate({ ...habit, name: habit.name, frequency: habit.frequency });
-                  queryClient.invalidateQueries({ queryKey: [userId, 'habits'] });
                   setShowModal(false);
                 } }>
                 Submit

@@ -21,9 +21,9 @@ const queryOccurrence = async (userId:string | undefined, startTime: number, end
 
 export const useQueryOccurrences = (userId: string | undefined, startTime: number, endTime: number) => {
   return useQuery({
-    queryKey: [userId, 'occurrences', startTime, endTime],
+    queryKey: [userId, 'habit', 'occurrences', startTime, endTime],
     queryFn: () => queryOccurrence(userId, startTime, endTime),
-    enabled: userId !== undefined
+    enabled: !!userId
   });
 };
 
@@ -50,8 +50,8 @@ const queryOccurrenceByHabit = async (userId:string | undefined, habitId: string
 
 export const useQueryOccurrencesByHabit = (userId: string | undefined, habitId:string | undefined, startTime: number, endTime: number) => {
   return useQuery({
-    queryKey: [userId, 'occurrences', habitId],
+    queryKey: [userId, 'habit', habitId, 'occurrences'],
     queryFn: () => queryOccurrenceByHabit(userId, habitId, startTime, endTime),
-    enabled: userId !== undefined || habitId !== undefined
+    enabled: !!habitId && !!userId
   });
 };

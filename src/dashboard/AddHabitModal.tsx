@@ -11,7 +11,7 @@ export const AddHabitModal = ({showModal, setShowModal}: {showModal:boolean, set
   const [habitName, setHabitName] = useState('');
   const [frequency, setFrequency] = useState<'daily'|'weekly'>('daily');
   const userId = user?.uid;
-  const addHabitMutation = useAddHabit(userId);
+  const addHabitMutation = useAddHabit(queryClient, userId);
   
   return (<>
     {showModal && (<><div
@@ -50,7 +50,6 @@ export const AddHabitModal = ({showModal, setShowModal}: {showModal:boolean, set
                 onClick={() => {
                   addHabitMutation.mutate({ name: habitName, frequency });
                   setHabitName('');
-                  queryClient.invalidateQueries({ queryKey: [userId, 'habits'] });
                 } }>
                 Submit
               </PrimaryButton>

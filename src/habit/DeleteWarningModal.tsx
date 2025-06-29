@@ -19,7 +19,7 @@ export const DeleteWarningModal = ({
   const navigate = useNavigate();
   const user = useAuthUser();
   const userId = user?.uid;
-  const deleteHabitMutation = useDeleteHabit(userId);
+  const deleteHabitMutation = useDeleteHabit(queryClient, userId);
 
   return (<>
     {showModal && (<>
@@ -42,7 +42,6 @@ export const DeleteWarningModal = ({
                 className="flex-1"
                 onClick={() => {
                   deleteHabitMutation.mutate({habitId: habit.id});
-                  queryClient.invalidateQueries({ queryKey: [userId, 'habits'] });
                   navigate(`/dashboard`);
                 } }>
                 Delete
